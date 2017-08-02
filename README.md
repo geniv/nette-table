@@ -35,11 +35,11 @@ use Table;
 
 protected function createComponentTable1(Table $table)
 {
-//  $list
-//            //->setPathTemplate(__DIR__ . '/../templates/Pravidla/list.latte')
-//            ->setColumns('Title, Description')
-//            ->setLanguage(null)
-//            ->setOrder('IdNews', 'asc');
+    $table->setTemplatePath(__DIR__ . '/templates/Byty/cenikTable.latte');
+    $table->setTableName(PriceList::TABLE_NAME);
+    $table->setColumns('designation, floor, disposition, total_area, price, state, pdf');
+    $table->setColumnLocale(null);
+    $table->setOrder('position');
 
     return $table;
 }

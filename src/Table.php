@@ -147,7 +147,7 @@ class Table extends Control
      * @param string $direction
      * @return $this
      */
-    public function setOrder($order, $direction = 'asc')
+    public function setOrder($order, $direction = 'ASC')
     {
         $this->order[] = [$order, $direction];
         return $this;
@@ -208,6 +208,8 @@ class Table extends Control
 
     /**
      * Get list data from db.
+     *
+     * @return mixed
      */
     public function getList()
     {
