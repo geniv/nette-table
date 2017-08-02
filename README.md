@@ -43,3 +43,9 @@ protected function createComponentTable1(Table $table)
 
     return $table;
 }
+```
+
+usage:
+```latte
+{control table1}
+```
