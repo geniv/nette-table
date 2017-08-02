@@ -1,8 +1,25 @@
-{_'list vypis'}
-
-{foreach $list as $item}
-    {dump $item}
-{/foreach}
+<table>
+    <tr>
+        <th>Označení</th>
+        <th>Podlaží</th>
+        <th>Dispozice</th>
+        <th>Celková plocha</th>
+        <th>Cena vč. DPH</th>
+        <th>Stav</th>
+        <th>PDF</th>
+    </tr>
+    <tr n:foreach="$list as $item">{dump $item}
+        <td>{$item->designation}</td>
+        <td>{$item->floor}</td>
+        <td>{$item->disposition}</td>
+        <td>{$item->total_area} m<sup>2</sup></td>
+        <td>{$item->price|number:2,',',' '} Kč</td>
+        <td><span class="btn btn-state btn-state-{$item->state}">{$item->state}</span></td>
+        <td>
+            <a n:if="$item->pdf" href="{$item->pdf}">link</a>
+        </td>
+    </tr>
+</table>
 
 {if $iterations==0}
     0 položek
