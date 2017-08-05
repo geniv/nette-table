@@ -35,11 +35,20 @@ use Table;
 
 protected function createComponentTable1(Table $table)
 {
-    $table->setTemplatePath(__DIR__ . '/templates/Byty/cenikTable.latte');
-    $table->setTableName(PriceList::TABLE_NAME);
-    $table->setColumns('designation, floor, disposition, total_area, price, state, pdf');
-    $table->setColumnLocale(null);
-    $table->setOrder('position');
+    $table->setTemplatePath(__DIR__ . '/templates/Byty/cenikTable.latte')
+        ->setTableName(PriceList::TABLE_NAME)
+        ->setTableName(PriceList::TABLE_NAME, 'tab')
+        ->setColumns('designation, floor')
+        ->setColumns(['designation', 'floor'])
+        ->setColumnLocale(null)
+        ->setColumnLocale('language_col')
+        ->addJoin('table_join', 'alias', 'alias.id=tab.id')
+        ->addLeftJoin('table_join', 'alias', ['alias.id' => 'tab.id'])
+        ->addLeftJoin('table_has_locale', 'lo_alias', 'lo_alias.id=tab.id AND lo_alias.id_locale=' . $table->getIdLocale())
+        ->addWhere('image=1')
+        ->addWhere('image=3')
+        ->addOrder('position')
+        ->addOrder('position', 'desc');
 
     return $table;
 }
@@ -48,4 +57,15 @@ protected function createComponentTable1(Table $table)
 usage:
 ```latte
 {control table1}
+```
+
+usage in template:
+```latte
+<div n:foreach="$list as $item">
+    <h1>{$item->title}</h1>
+</div>
+
+{if $iterations==0}
+    0 položek
+{/if}
 ```

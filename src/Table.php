@@ -34,8 +34,14 @@ class Table extends Control
     private $columnId = 'id', $columnLocale = 'id_locale';
 
     private $columns;
-    private $where = null;
-    private $order = null;
+    /** @var array */
+    private $join = [];
+    /** @var array */
+    private $leftJoin = [];
+    /** @var array */
+    private $where = [];
+    /** @var array */
+    private $order = [];
     private $limit = null, $offset = null;
 
 
@@ -117,23 +123,54 @@ class Table extends Control
     /**
      * Set table name.
      *
-     * @param string $tableName
+     * @param      $tableName
+     * @param null $as
      * @return $this
      */
-    public function setTableName($tableName)
+    public function setTableName($tableName, $as = null)
     {
-        $this->tableName = $tableName;
+        $this->tableName = [$tableName, $as];
         return $this;
     }
 
 
     /**
-     * Set sql where.
+     * Add sql join.
+     *
+     * @param $table
+     * @param $as
+     * @param $on
+     * @return $this
+     */
+    public function addJoin($table, $as, $on)
+    {
+        $this->join[] = [$table, $as, $on];
+        return $this;
+    }
+
+
+    /**
+     * Add sql left join.
+     *
+     * @param $table
+     * @param $as
+     * @param $on
+     * @return $this
+     */
+    public function addLeftJoin($table, $as, $on)
+    {
+        $this->leftJoin[] = [$table, $as, $on];
+        return $this;
+    }
+
+
+    /**
+     * Add sql where.
      *
      * @param mixed $where
      * @return $this
      */
-    public function setWhere($where)
+    public function addWhere($where)
     {
         $this->where[] = $where;
         return $this;
@@ -141,13 +178,13 @@ class Table extends Control
 
 
     /**
-     * Set sql order.
+     * Add sql order.
      *
      * @param mixed  $order
      * @param string $direction
      * @return $this
      */
-    public function setOrder($order, $direction = 'ASC')
+    public function addOrder($order, $direction = 'ASC')
     {
         $this->order[] = [$order, $direction];
         return $this;
@@ -207,14 +244,25 @@ class Table extends Control
 
 
     /**
+     * Get id locale.
+     *
+     * @return int|null
+     */
+    public function getIdLocale()
+    {
+        return $this->idLocale;
+    }
+
+
+    /**
      * Get list data from db.
      *
      * @return mixed
      */
     public function getList()
     {
-        $cacheKey = 'list' . $this->prefix . $this->tableName . $this->idLocale;
-        // ovladani cachovani
+        $cacheKey = 'list' . $this->prefix . $this->tableName[0] . $this->idLocale;
+        // control cache
         if ($this->isCache) {
             $list = $this->cache->load($cacheKey);
             if ($list !== null) {
@@ -222,36 +270,57 @@ class Table extends Control
             }
         }
 
+        list($tableName, $tableNameAs) = $this->tableName;
         // primare sql
-        $cursor = $this->connection->select($this->columnId)->select($this->columns)
-            ->from($this->prefix . $this->tableName);
+        $cursor = $this->connection->select(($tableNameAs ? $tableNameAs . '.' : '') . $this->columnId)->select($this->columns)
+            ->from($this->prefix . $tableName);
+        // set from as
+        if ($tableNameAs) {
+            $cursor->as($tableNameAs);
+        }
+
+        // add join
+        if (isset($this->join) && $this->join) {
+            foreach ($this->join as $item) {
+                list($table, $as, $on) = $item;
+                $cursor->join($this->prefix . $table)->as($as)->on($on);
+            }
+        }
+
+        // add left join
+        if (isset($this->leftJoin) && $this->leftJoin) {
+            foreach ($this->leftJoin as $item) {
+                list($table, $as, $on) = $item;
+                $cursor->leftJoin($this->prefix . $table)->as($as)->on($on);
+            }
+        }
 
         // set locale
-        if (isset($this->columnLocale)) {
+        if (isset($this->columnLocale) && $this->columnLocale) {
             $cursor->where([$this->columnLocale => $this->idLocale]);
         }
 
-        // set where
-        if (isset($this->where)) {
+        // add where
+        if (isset($this->where) && $this->where) {
             $cursor->where($this->where);
         }
 
-        // set order
-        if (isset($this->order)) {
+        // add order
+        if (isset($this->order) && $this->order) {
             $cursor->orderBy($this->order);
         }
 
         // set limit
-        if ($this->limit) {
+        if (isset($this->limit) && $this->limit) {
             $cursor->limit($this->limit);
         }
 
         // set offset
-        if ($this->offset) {
+        if (isset($this->offset) && $this->offset) {
             $cursor->offset($this->offset);
         }
 
-        // ovladani cachovani
+        // control cache
         if ($this->isCache) {
             if ($list === null) {
                 $list = $cursor->fetchAll();
