@@ -3,7 +3,7 @@
 use Nette\Localization\ITranslator;
 use Nette\Application\UI\Control;
 use Dibi\Connection;
-use Locale\Locale;
+use Locale\ILocale;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
 
@@ -50,11 +50,11 @@ class Table extends Control
      *
      * @param                  $prefix
      * @param Connection       $connection
-     * @param Locale           $locale
+     * @param ILocale          $locale
      * @param ITranslator|null $translator
      * @param IStorage         $storage
      */
-    public function __construct($prefix, Connection $connection, Locale $locale, ITranslator $translator = null, IStorage $storage)
+    public function __construct($prefix, Connection $connection, ILocale $locale, ITranslator $translator = null, IStorage $storage)
     {
         parent::__construct();
 
@@ -339,15 +339,16 @@ class Table extends Control
 
 
     /**
-     * Render default.
+     * Render.
      */
     public function render()
     {
         $template = $this->getTemplate();
 
+        $template->list = $this->getList();
+
         $template->setTranslator($this->translator);
         $template->setFile($this->templatePath);
-        $template->list = $this->getList();
         $template->render();
     }
 }
