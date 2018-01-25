@@ -31,6 +31,8 @@ class Table extends Control
     private $templatePath;
 
     private $isCache = false;
+    private $cacheDependencies = null;
+
     private $columnId = 'id', $columnLocale = 'id_locale';
 
     private $columns;
@@ -48,7 +50,7 @@ class Table extends Control
     /**
      * Table constructor.
      *
-     * @param                  $prefix
+     * @param string           $prefix
      * @param Connection       $connection
      * @param ILocale          $locale
      * @param ITranslator|null $translator
@@ -84,7 +86,7 @@ class Table extends Control
     /**
      * Enable cache.
      *
-     * @param mixed $isCache
+     * @param bool $isCache
      * @return $this
      */
     public function enableCache($isCache)
@@ -95,9 +97,22 @@ class Table extends Control
 
 
     /**
+     * Set cache dependencies.
+     *
+     * @param array $cacheDependencies
+     * @return $this
+     */
+    public function setCacheDependencies(array $cacheDependencies)
+    {
+        $this->cacheDependencies = $cacheDependencies;
+        return $this;
+    }
+
+
+    /**
      * Set columns.
      *
-     * @param mixed $columns
+     * @param array $columns
      * @return $this
      */
     public function setColumns($columns)
@@ -123,8 +138,8 @@ class Table extends Control
     /**
      * Set table name.
      *
-     * @param      $tableName
-     * @param null $as
+     * @param string $tableName
+     * @param null   $as
      * @return $this
      */
     public function setTableName($tableName, $as = null)
@@ -137,9 +152,9 @@ class Table extends Control
     /**
      * Add sql join.
      *
-     * @param $table
-     * @param $as
-     * @param $on
+     * @param string $table
+     * @param string $as
+     * @param string $on
      * @return $this
      */
     public function addJoin($table, $as, $on)
@@ -152,9 +167,9 @@ class Table extends Control
     /**
      * Add sql left join.
      *
-     * @param $table
-     * @param $as
-     * @param $on
+     * @param string $table
+     * @param string $as
+     * @param string $on
      * @return $this
      */
     public function addLeftJoin($table, $as, $on)
@@ -271,7 +286,7 @@ class Table extends Control
         }
 
         list($tableName, $tableNameAs) = $this->tableName;
-        // primare sql
+        // primary sql
         $cursor = $this->connection->select(($tableNameAs ? $tableNameAs . '.' : '') . $this->columnId)->select($this->columns)
             ->from($this->prefix . $tableName);
         // set from as
@@ -325,12 +340,7 @@ class Table extends Control
             if ($list === null) {
                 $list = $cursor->fetchAll();
                 // ulozeni cache
-                $this->cache->save($cacheKey, $list
-//                    , [
-//                    Nette\Caching\Cache::EXPIRE => '30 minutes',
-//                    Nette\Caching\Cache::TAGS   => ['getListItems'],
-//                ]
-                );
+                $this->cache->save($cacheKey, $list, $this->cacheDependencies);
                 return $list;
             }
         }
