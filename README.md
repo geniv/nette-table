@@ -49,6 +49,9 @@ protected function createComponentTable1(Table $table)
         ->addWhere('image=3')
         ->addOrder('position')
         ->addOrder('position', 'desc');
+        
+    $table->enableCache(true)
+        ->setCacheDependencies([Nette\Caching\Cache::EXPIRE => '30 minutes']);
 
     return $table;
 }
