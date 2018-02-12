@@ -33,7 +33,8 @@ class Table extends Control
     private $isCache = false;
     private $cacheDependencies = null;
 
-    private $columnId = 'id', $columnLocale = 'id_locale';
+    private $columnId = 'id';
+    private $columnLocale = null;
 
     private $columns;
     /** @var array */
@@ -247,6 +248,7 @@ class Table extends Control
 
     /**
      * Set name column locale or disable locale.
+     * usually: id_locale.
      *
      * @param string $columnLocale
      * @return $this
@@ -317,7 +319,13 @@ class Table extends Control
 
         // add where
         if (isset($this->where) && $this->where) {
-            $cursor->where($this->where);
+            if (is_array($this->where)) {
+                foreach ($this->where as $where) {
+                    $cursor->where($where);
+                }
+            } else {
+                $cursor->where($this->where);
+            }
         }
 
         // add order
