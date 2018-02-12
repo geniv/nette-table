@@ -279,6 +279,7 @@ class Table extends Control
     public function getList()
     {
         $cacheKey = 'list' . $this->prefix . $this->tableName[0] . $this->idLocale;
+        $list = null;
         // control cache
         if ($this->isCache) {
             $list = $this->cache->load($cacheKey);
