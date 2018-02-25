@@ -24,5 +24,10 @@
     "classmap": [
       "src/"
     ]
+  },
+  "extra": {
+    "installer-paths": {
+      "app/modules": ["app/modules/monolog"]
+    }
   }
 }
