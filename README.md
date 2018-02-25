@@ -5,7 +5,7 @@ Installation
 ------------
 
 ```sh
-$ composer require geniv/nette-configurtableator
+$ composer require geniv/nette-table
 ```
 or
 ```json
