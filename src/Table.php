@@ -275,6 +275,7 @@ class Table extends Control
      * Get list data from db.
      *
      * @return mixed
+     * @throws Throwable
      */
     public function getList()
     {
@@ -287,7 +288,7 @@ class Table extends Control
                 return $list;
             }
         }
-
+//TODO nother resolve this load data
         list($tableName, $tableNameAs) = $this->tableName;
         // primary sql
         $cursor = $this->connection->select(($tableNameAs ? $tableNameAs . '.' : '') . $this->columnId)->select($this->columns)
